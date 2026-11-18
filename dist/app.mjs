@@ -1,7 +1,7 @@
 import {esc,articleUrl,memberUrl} from './render.mjs';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 let dataPromise;
-const data=()=>dataPromise??=fetch(new URL('content.json', document.baseURI).href).then(r=>{if(!r.ok)throw Error('content');return r.json()});
+const data=()=>dataPromise??=fetch('/content.json').then(r=>{if(!r.ok)throw Error('content');return r.json()});
 const menu=$('.menu-toggle'),nav=$('#navigation');
 menu.addEventListener('click',()=>{const open=nav.classList.toggle('mobile-open');menu.setAttribute('aria-expanded',open);menu.setAttribute('aria-label',open?'Затвори мени':'Отвори мени')});
 $$('.navdrop>button').forEach(b=>b.addEventListener('click',()=>{const p=b.parentElement;const open=p.classList.toggle('open');b.setAttribute('aria-expanded',open)}));
@@ -25,3 +25,29 @@ $('.contact-form')?.addEventListener('submit',e=>{e.preventDefault();const form=
 if($('#calendar-grid')){const todayParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Skopje',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=k=>Number(todayParts.find(x=>x.type===k).value);const today=new Date(get('year'),get('month')-1,get('day'));let year=today.getFullYear(),month=today.getMonth();const d=await data();const events=d.calendar;
 function drawCalendar(){$('#calendar-month').textContent=new Intl.DateTimeFormat('mk',{month:'long',year:'numeric'}).format(new Date(year,month));const offset=(new Date(year,month,1).getDay()+6)%7,days=new Date(year,month+1,0).getDate();let html=['Пон','Вто','Сре','Чет','Пет','Саб','Нед'].map(x=>`<div class="calendar-weekday">${x}</div>`).join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty"></div>';for(let day=1;day<=days;day++){const iso=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const current=year===today.getFullYear()&&month===today.getMonth()&&day===today.getDate();html+=`<div class="calendar-day ${current?'today':''}" ${current?'aria-current="date"':''}><span>${day}</span>${events.filter(e=>e.start.startsWith(iso)).map(e=>`<button class="calendar-event" data-event="${esc(e.id)}">${esc(e.start.slice(11,16))}<br>${esc(e.title)}</button>`).join('')}</div>`}$('#calendar-grid').innerHTML=html;$$('[data-event]').forEach(b=>b.addEventListener('click',()=>{const e=events.find(x=>x.id===b.dataset.event);$('#event-title').textContent=e.title;$('#event-body').innerHTML=`<p>${esc(e.start.replace('T',' · '))}</p><p>${esc(e.location)}</p><p>${esc(e.description)}</p>`;showDialog($('#event-dialog'))}))}
 $('#calendar-prev').addEventListener('click',()=>{month--;if(month<0){month=11;year--}drawCalendar()});$('#calendar-next').addEventListener('click',()=>{month++;if(month>11){month=0;year++}drawCalendar()});$('#calendar-today').addEventListener('click',()=>{month=today.getMonth();year=today.getFullYear();drawCalendar()});drawCalendar()}
+
+/* === Premium UI enhancements (animations & hovers) === */
+(()=>{
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const header=document.querySelector('.site-header');
+  const bar=document.createElement('div');bar.className='scroll-progress';bar.setAttribute('aria-hidden','true');document.body.append(bar);
+  const toTop=document.createElement('button');toTop.type='button';toTop.className='to-top';toTop.setAttribute('aria-label','Назад на врвот');
+  toTop.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  document.body.append(toTop);
+  toTop.addEventListener('click',()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'}));
+  let ticking=false;
+  const onScroll=()=>{const y=scrollY,max=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${max>0?Math.min(y/max,1):0})`;header&&header.classList.toggle('scrolled',y>40);toTop.classList.toggle('show',y>700);ticking=false};
+  addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
+  onScroll();
+  if(reduce||!('IntersectionObserver' in window))return;
+  const selector='.meeting-strip .wrap>*,.section-head,.intro-copy,.intro-images,.card,.member-card,.value,.values-band h3,.timeline-item,.honorary-card,.committee,.contact-details,.contact-form,.donation-box,.gallery button,.about-content>section,.payment-slips>*,.calendar-layout>*,.bio-layout>*,.article-cover,.article-layout,.join-section .wrap>*,.footer-grid>div,.filter-row,.member-tabs .wrap';
+  const finish=el=>{el.classList.remove('rv','in');el.style.removeProperty('--d')};
+  const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;el.classList.add('in');io.unobserve(el);const d=parseFloat(el.style.getPropertyValue('--d'))||0;setTimeout(()=>finish(el),1100+d)}),{rootMargin:'0px 0px -8% 0px',threshold:.08});
+  const counters=new Map();
+  document.querySelectorAll(selector).forEach(el=>{
+    if(el.closest('dialog')||el.getBoundingClientRect().top<innerHeight*.9)return;
+    const parent=el.parentElement,i=counters.get(parent)||0;counters.set(parent,i+1);
+    el.style.setProperty('--d',`${Math.min(i%6,5)*85}ms`);
+    el.classList.add('rv');io.observe(el);
+  });
+})();

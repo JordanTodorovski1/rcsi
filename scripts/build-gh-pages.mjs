@@ -35,6 +35,18 @@ async function processDir(dir) {
 }
 
 await processDir('docs');
+// Patch CSS & fonts so custom typography loads cleanly under /rcsi/
+let css = await fs.readFile('docs/styles.css', 'utf8');
+css = css.replace("url('/fonts.css')", `url('${base}fonts.css')`);
+await fs.writeFile('docs/styles.css', css);
+let fontsCss = await fs.readFile('docs/fonts.css', 'utf8');
+fontsCss = fontsCss.replaceAll('url(/assets/', `url(${base}assets/`);
+await fs.writeFile('docs/fonts.css', fontsCss);
+// Patch JS so data fetch and search-result links respect the /rcsi/ base
+let app = await fs.readFile('docs/app.mjs', 'utf8');
+app = app.replace("fetch('/content.json')", `fetch('${base}content.json')`);
+app = app.replace('class="search-result" href="${x.url}"', `class="search-result" href="${base.slice(0, -1)}\${x.url}"`);
+await fs.writeFile('docs/app.mjs', app);
 // Add .nojekyll so GitHub Pages does not ignore files starting with _
 await fs.writeFile('docs/.nojekyll', '');
 console.log('GitHub Pages build created in docs/ with .nojekyll');
