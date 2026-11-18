@@ -29,7 +29,7 @@ collections:
       - { label: "Категорија (на пр. Ментално здравје, Настани, Посети, Технолошки форум)", name: "category", widget: "string", default: "Настани" }
       - { label: "Наслов", name: "title", widget: "string" }
       - { label: "Мета опис (Град и Датум, на пр. Скопје | 20.11.2026)", name: "meta", widget: "string" }
-      - { label: "Насловна фотографија", name: "cover", widget: "image" }
+      - { label: "Насловна фотографија", name: "cover", widget: "image", required: false }
       - { label: "Поднаслов (опционално)", name: "subtitle", widget: "string", required: false }
       - { label: "Содржина (Текст)", name: "body", widget: "markdown" }
       - { label: "Галерија на слики", name: "gallery", widget: "list", field: { label: "Слика", name: "image", widget: "image" }, required: false }
