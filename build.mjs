@@ -2,6 +2,20 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {renderPage,allRoutes,esc} from './dist/render.mjs';
 const d=JSON.parse(await fs.readFile('dist/content.json','utf8'));
+try {
+  const articleFiles = await fs.readdir('content/articles');
+  for (const file of articleFiles) {
+    if (file.endsWith('.json')) {
+      const art = JSON.parse(await fs.readFile(path.join('content/articles', file), 'utf8'));
+      const existingIdx = d.articles.findIndex(a => a.id === art.id);
+      if (existingIdx !== -1) {
+        d.articles[existingIdx] = { ...d.articles[existingIdx], ...art };
+      } else {
+        d.articles.unshift(art);
+      }
+    }
+  }
+} catch (e) {}
 const origin = process.env.SITE_ORIGIN || 'https://rcsi.mk';
 for(const route of [...allRoutes(d),'/404/']){
  const r=renderPage(d,route);const dir=path.join('dist',decodeURIComponent(route));await fs.mkdir(dir,{recursive:true});

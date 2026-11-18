@@ -1,0 +1,35 @@
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend: true
+
+media_folder: "dist/assets"
+public_folder: "/assets"
+
+display_url: "https://rcsi.mk"
+logo_url: "/assets/093a655101-Logo-oo-1-e1760273113774.webp"
+
+collections:
+  - name: "articles"
+    label: "Новости, Проекти и Настани"
+    label_singular: "Објава"
+    folder: "content/articles"
+    create: true
+    slug: "{{id}}"
+    format: "json"
+    fields:
+      - { label: "Идентификатор (ID, на пр. 20261120)", name: "id", widget: "string" }
+      - { label: "Тип на објава", name: "type", widget: "select", options: [
+          { label: "Настани", value: "events" },
+          { label: "Проекти", value: "projects" },
+          { label: "Посети", value: "visits" },
+          { label: "Новости", value: "news" }
+        ], default: "events" }
+      - { label: "Категорија (на пр. Ментално здравје, Настани, Посети, Технолошки форум)", name: "category", widget: "string", default: "Настани" }
+      - { label: "Наслов", name: "title", widget: "string" }
+      - { label: "Мета опис (Град и Датум, на пр. Скопје | 20.11.2026)", name: "meta", widget: "string" }
+      - { label: "Насловна фотографија", name: "cover", widget: "image" }
+      - { label: "Поднаслов (опционално)", name: "subtitle", widget: "string", required: false }
+      - { label: "Содржина (Текст)", name: "body", widget: "markdown" }
+      - { label: "Галерија на слики", name: "gallery", widget: "list", field: { label: "Слика", name: "image", widget: "image" }, required: false }

@@ -1,1 +1,1 @@
-{"name":"rotary-skopje-international","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs","dev":"python3 -m http.server 4173 --directory dist","check":"node --check dist/render.mjs && node --check dist/app.mjs && python3 scripts/validate.py"}}
+{"name":"rotary-skopje-international","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs","dev":"python3 -m http.server 4173 --directory dist","check":"node --check dist/render.mjs && node --check dist/app.mjs && python3 scripts/validate.py","cms":"npx decap-server"}}
