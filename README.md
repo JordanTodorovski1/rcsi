@@ -58,3 +58,4 @@ Source metadata is preserved rather than silently corrected:
 Static checks cover every generated HTML page and internal asset/link reference. Browser verification uses Playwright with the installed Brave browser at desktop, tablet, and mobile widths (1440, 768, 390, 320). Checks exercise filters, empty states, member search, biographies, global search, gallery navigation and Escape handling, mobile menus, donation copying, calendar navigation, and required contact fields. Browser scripts under `scripts/` contain this workstation's Playwright and browser paths; adapt those paths to rerun on another machine.
 
 The migration helper requires Beautiful Soup and Pillow plus the local `research/` crawl. It is an import tool, not part of the build. Normal editing and publication only require the included `dist/content.json` and assets.
+# rcsi
