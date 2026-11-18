@@ -1,7 +1,7 @@
 import {esc,articleUrl,memberUrl} from './render.mjs';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 let dataPromise;
-const data=()=>dataPromise??=fetch('/content.json').then(r=>{if(!r.ok)throw Error('content');return r.json()});
+const data=()=>dataPromise??=fetch(new URL('content.json', document.baseURI).href).then(r=>{if(!r.ok)throw Error('content');return r.json()});
 const menu=$('.menu-toggle'),nav=$('#navigation');
 menu.addEventListener('click',()=>{const open=nav.classList.toggle('mobile-open');menu.setAttribute('aria-expanded',open);menu.setAttribute('aria-label',open?'Затвори мени':'Отвори мени')});
 $$('.navdrop>button').forEach(b=>b.addEventListener('click',()=>{const p=b.parentElement;const open=p.classList.toggle('open');b.setAttribute('aria-expanded',open)}));
